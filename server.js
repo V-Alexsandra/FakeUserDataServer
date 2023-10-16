@@ -80,7 +80,7 @@ const requestListener = function (req, res) {
     res.end(JSON.stringify(fakeData));
 };
 
-app.get('/generateFakeData', requestListener);
+app.get('/api/generateFakeData', requestListener);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
