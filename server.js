@@ -8,7 +8,6 @@ const chance = new Chance();
 
 app.use(cors({ origin: '*' }));
 
-const host = "localhost";
 const port = process.env.PORT || 3001;
 
 let counter = 1;
@@ -83,6 +82,6 @@ const requestListener = function (req, res) {
 
 app.get('/generateFakeData', requestListener);
 
-app.listen(port, host, () => {
+app.listen(port, () => {
     console.log(`Server is running on http://${host}:${port}`);
 });
