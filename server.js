@@ -83,5 +83,5 @@ const requestListener = function (req, res) {
 app.get('/generateFakeData', requestListener);
 
 app.listen(port, () => {
-    console.log(`Server is running on http://${host}:${port}`);
+    console.log(`Server is running on port ${port}`);
 });
