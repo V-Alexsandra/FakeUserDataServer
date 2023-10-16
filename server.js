@@ -1,37 +1,43 @@
 const express = require('express');
-const faker =  require('@faker-js/faker');
+const Chance = require('chance');
+const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
+const chance = new Chance();
 
-const host = "0.0.0.0";
+app.use(cors({ origin: '*' }));
+
+const host = "localhost";
 const port = process.env.PORT || 3001;
 
 let counter = 1;
+
 function introduceErrors(inputString, errorCount) {
     if (errorCount <= 0) {
         return inputString;
     }
 
     const len = inputString.length;
-    const characters = inputString.split('');
+    let result = inputString;
 
     for (let i = 0; i < errorCount; i++) {
         const randomIndex = Math.floor(Math.random() * len);
-
         const errorType = Math.floor(Math.random() * 3);
 
         switch (errorType) {
             case 0:
-                characters.splice(randomIndex, 1);
+                result = result.slice(0, randomIndex) + result.slice(randomIndex + 1);
                 break;
             case 1:
                 const randomChar = generateRandomCharacter();
-                characters.splice(randomIndex, 0, randomChar);
+                result = result.slice(0, randomIndex) + randomChar + result.slice(randomIndex);
                 break;
             case 2:
                 if (randomIndex < len - 1) {
-                    [characters[randomIndex], characters[randomIndex + 1]] = [characters[randomIndex + 1], characters[randomIndex]];
+                    const chars = result.split('');
+                    [chars[randomIndex], chars[randomIndex + 1]] = [chars[randomIndex + 1], chars[randomIndex]];
+                    result = chars.join('');
                 }
                 break;
             default:
@@ -39,33 +45,28 @@ function introduceErrors(inputString, errorCount) {
         }
     }
 
-    return characters.join('');
+    return result;
 }
 
 function generateRandomCharacter() {
     const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     const randomIndex = Math.floor(Math.random() * characters.length);
-    return characters[randomIndex];
+    return characters.charAt(randomIndex);
 }
 
-const generateFakeData = (region, errorCount, seed) => {
+const generateFakeData = (errorCount) => {
     const number = counter++;
-    const randomId = uuidv4();
 
-    faker.setLocale(region);
-    faker.seed(seed);
-
-    const fakeName = introduceErrors(faker.name.findName(), errorCount);
-    const fakeAddress = introduceErrors(faker.address.streetAddress(), errorCount);
-    const fakePhoneNumber = introduceErrors(faker.phone.phoneNumber(), errorCount);
-
+    const name = chance.name();
+    const address = chance.address();
+    const phoneNumber = chance.phone();
 
     return {
         number: number,
-        id: randomId,
-        name: fakeName,
-        address: fakeAddress,
-        phoneNumber: fakePhoneNumber,
+        id: uuidv4(),
+        name: introduceErrors(name, errorCount),
+        address: introduceErrors(address, errorCount),
+        phoneNumber: introduceErrors(phoneNumber, errorCount),
     };
 };
 
@@ -73,18 +74,15 @@ const requestListener = function (req, res) {
     res.setHeader("Content-Type", "application/json");
     res.writeHead(200);
 
-    const region = req.url.split('?')[1]?.split('region=')[1];
-    const errorCount = parseInt(req.url.split('?')[1]?.split('errorCount=')[1], 10);
-    const seed = parseInt(req.url.split('?')[1]?.split('seed=')[1], 10);
+    const params = new URLSearchParams(req.url.split('?')[1]);
+    const errorCount = parseInt(params.get('errorCount'), 10);
 
-    if (region && faker.locales.includes(region) && errorCount && seed) {
-        const fakeData = generateFakeData(region, errorCount, seed);
-        res.end(JSON.stringify(fakeData));
-    } else {
-        res.end(JSON.stringify({ error: 'Invalid region, errorCount, seed, or region not specified' }));
-    }
+    const fakeData = generateFakeData(errorCount);
+    res.end(JSON.stringify(fakeData));
 };
 
-app.listen(port, () => {
+app.get('/generateFakeData', requestListener);
+
+app.listen(port, host, () => {
     console.log(`Server is running on http://${host}:${port}`);
 });
