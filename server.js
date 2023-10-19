@@ -124,11 +124,7 @@ app.get('/generateFakeData', (req, res) => {
 
         const fakeData = [];
         for (let i = startIndex; i < endIndex; i++) {
-            console.log("st" + startIndex);
-            console.log("en" + endIndex);
-           
             const combinedSeed = seed + page + i;
-            console.log(combinedSeed);
             const item = generateFakeData(errorCount, combinedSeed, locale);
 
             item.number = i+1;
