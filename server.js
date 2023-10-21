@@ -9,7 +9,7 @@ const app = express();
 
 app.use(cors({ origin: '*' }));
 
-const host = "localhost";
+//const host = "localhost";
 const port = process.env.PORT || 3001;
 
 let counter = 1;
@@ -139,6 +139,6 @@ app.get('/generateFakeData', (req, res) => {
     }
 });
 
-app.listen(port, host, () => {
+app.listen(port, () => {
     console.log(`Server is running on http://${host}:${port}`);
 });
