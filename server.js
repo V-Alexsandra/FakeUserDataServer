@@ -9,7 +9,6 @@ const app = express();
 
 app.use(cors({ origin: '*' }));
 
-//const host = "localhost";
 const port = process.env.PORT || 3001;
 
 let counter = 1;
