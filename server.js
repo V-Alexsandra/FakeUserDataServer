@@ -139,34 +139,6 @@ app.get('/generateFakeData', (req, res) => {
     }
 });
 
-app.get('/export-to-csv', (req, res) => {
-    const params = new URLSearchParams(req.url.split('?')[1]);
-    const page = parseInt(params.get('page'), 10);
-    const fileName = 'exported-data.csv';
-
-    const startIndex = (page - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-
-    const visibleData = data.slice(startIndex, endIndex);
-
-    const csvWriter = createCsvWriter({
-        path: fileName,
-        header: [
-            { id: 'number', title: 'Number' },
-            { id: 'id', title: 'Random Identifier' },
-            { id: 'name', title: 'Full Name' },
-            { id: 'address', title: 'Address' },
-            { id: 'phoneNumber', title: 'Phone Number' },
-        ],
-    });
-
-    res.attachment(fileName);
-    csvWriter.writeRecords(visibleData)
-        .then(() => {
-            res.end();
-        });
-});
-
 app.listen(port, () => {
-    console.log(`Server is running on http://${host}:${port}`);
+    console.log(`Server is running on port: ${port}`);
 });
