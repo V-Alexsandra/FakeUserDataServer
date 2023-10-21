@@ -4,6 +4,7 @@ const { fakerEN } = require('@faker-js/faker');
 const { fakerPL } = require('@faker-js/faker');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
 const app = express();
 
@@ -136,6 +137,34 @@ app.get('/generateFakeData', (req, res) => {
     } else {
         res.status(400).json({ error: "Invalid page number" });
     }
+});
+
+app.get('/export-to-csv', (req, res) => {
+    const params = new URLSearchParams(req.url.split('?')[1]);
+    const page = parseInt(params.get('page'), 10);
+    const fileName = 'exported-data.csv';
+
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+
+    const visibleData = data.slice(startIndex, endIndex);
+
+    const csvWriter = createCsvWriter({
+        path: fileName,
+        header: [
+            { id: 'number', title: 'Number' },
+            { id: 'id', title: 'Random Identifier' },
+            { id: 'name', title: 'Full Name' },
+            { id: 'address', title: 'Address' },
+            { id: 'phoneNumber', title: 'Phone Number' },
+        ],
+    });
+
+    res.attachment(fileName);
+    csvWriter.writeRecords(visibleData)
+        .then(() => {
+            res.end();
+        });
 });
 
 app.listen(port, () => {

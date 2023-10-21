@@ -11,6 +11,11 @@
       "src": "/generateFakeData",
       "methods": ["GET"],
       "dest": "server.js"
+    },
+    {
+      "src": "/export-to-csv",
+      "methods": ["GET"],
+      "dest": "server.js"
     }
   ],
   "env": {
